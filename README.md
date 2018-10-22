@@ -9,3 +9,5 @@ Brief Introduction:
 - Ansible also has lots of variables available at the group, host or role level. This allows for a very granular hierarchy
 
 This particular set of configurations managed in between 200 and 300 hosts every day.  This project has been heavily redacted to protect sensitive information and thus large parts are missing.
+
+roles/ssh would be a good place to start and was a particular technical accomplishment
