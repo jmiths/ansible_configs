@@ -1,0 +1,47 @@
+---
+- name: Install LDAP server packages
+  apt: 
+     name={{ item }} 
+     state=present
+  with_items:
+  - slapd
+  - samba-doc
+  - autofs-ldap
+
+- name: Unpack samba schema
+  shell:
+     zcat /usr/share/doc/samba-doc/examples/LDAP/samba.schema.gz > /etc/ldap/schema/samba.schema
+
+- name: Copy in quota schema
+  copy: 
+     src=quota.schema
+     dest=/etc/ldap/schema/quota.schema
+     owner=openldap
+     group=openldap
+
+# /{,var/}run/slapd/* w, -> /{,var/}run/slapd/* rw,
+# Make apparmor go away
+- name: Slapd apparmor allowances
+  lineinfile:
+     dest=/etc/apparmor.d/usr.sbin.slapd
+     backrefs=yes
+     regexp="^(.*run/{{item}}/\* )w(.*)"
+     line='\1rw\2'
+  with_items:
+     - slapd
+     - nslcd
+  notify:
+     - Restart apparmor
+
+- name: Force handlers now
+  meta: flush_handlers
+     
+
+# Wait for a patch of unarchive, not in as of 7/10/15
+#- name: Unpack samba schema
+#  unarchive:
+#    copy=no
+#    src=/usr/share/doc/samba-doc/examples/LDAP/samba.schema.gzip
+#    dest=/etc/ldap/schema/
+#    owner=openldap
+#    group=openldap

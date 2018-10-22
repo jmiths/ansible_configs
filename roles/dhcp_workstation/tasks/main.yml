@@ -1,0 +1,15 @@
+---
+
+- name: Make the admin group
+  group:
+      name=admin
+      state=present
+      system=yes
+
+- name: Add the right name server
+  lineinfile:
+      dest=/etc/network/interfaces
+      line={{ item }}
+      state=present
+  with_items:
+      - "        dns-search blah"

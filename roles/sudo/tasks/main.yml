@@ -1,0 +1,26 @@
+---
+- name: Move sudo files into place
+  copy: 
+        src={{item.src}}
+        dest={{item.dest}}
+        owner=root
+        group=root
+        mode=0440
+  with_items:
+      - { src: 'cci-techstaff', dest: '/etc/sudoers.d/cci-techstaff' }
+      - { src: 'mcs-wheel', dest: '/etc/sudoers.d/mcs-wheel' }
+      - { src: 'xauth', dest: '/etc/sudoers.d/xauth' }
+      - { src: 'secure_path', dest: '/etc/sudoers.d/secure_path' }
+      - { src: 'root', dest: '/etc/sudoers.d/root' }
+      - { src: 'print', dest: '/etc/sudoers.d/print' }
+
+- name: Include sudoers.d
+  lineinfile: dest=/etc/sudoers  state=present line='#includedir /etc/sudoers.d'
+
+- name: Add edge sudo entries
+  copy: dest=/etc/sudoers.d/kuiper.options
+    src=../files/kuiper.options
+    owner=root
+    group=root
+    mode=0600
+  when: group_name == "kuiper"

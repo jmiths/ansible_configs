@@ -1,0 +1,45 @@
+---
+- name: Django Pip install
+  pip:
+     name=django
+     state=latest
+     executable={{item}}
+  with_items:
+     - pip
+     - pip3
+
+- name: NPM and node install
+  apt:
+     name={{item}}
+     state=present
+  with_items:
+     - npm
+     - nodejs-legacy
+
+- name: Install all npm packages and update them
+  npm:
+     name={{item}}
+     state=latest
+     global=yes
+  with_items:
+     - accepts
+     - array-flatten
+     - chalk
+     - cordova
+     - content-disposition
+     - content-type
+     - cookie
+     - cookie-signature
+     - express
+     - finalhandler
+     - merge-descriptors
+     - methods
+     - npm
+     - path-to-regexp
+     - proxy-addr
+     - qs
+     - serve-static
+     - socket.io
+     - type-is
+     - utils-merge
+     - vary

@@ -1,0 +1,6 @@
+---
+- name: Ensure perfctr server links
+  file: dest={{ item.path }} state=link src={{ item.src }}
+  with_items:
+     - { dest: '/site/local/papi_x86_64', src: '/site/local/papi_64-4.1.4' }
+     - { dest: '/site/local/papi_i386', src: '/site/local/papi_32-3.7.0' }

@@ -1,0 +1,7 @@
+---
+
+- include: argo-server.yml
+
+- include: ns-nam-server.yml
+
+- include: perfctr-server.yml

@@ -1,0 +1,15 @@
+---
+- name: Get our subdomain
+  shell: echo {{ ansible_domain }} | cut -f 1 -d .
+  register: subdomain
+  changed_when: False
+
+- include: autofs.yml
+
+- include: alternatives/main.yml
+  when:
+     - '"math_machines" not in group_names'
+     - ansible_hostname != "twinkle"
+
+- include: sitelinks/main.yml
+  when: ansible_hostname == "cicada"

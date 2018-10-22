@@ -1,0 +1,15 @@
+---
+- name: Ensure go link
+  file:
+     dest=/usr/local/{{item.name}}
+     src={{ item.path }}
+     state=link
+  with_items:
+     - { name: 'go', path: '/site/local/go' }
+
+- name: Update /etc/profile.d for go
+  lineinfile:
+     dest=/etc/profile.d/go.sh
+     line="export PATH=$PATH:/site/local/go/bin/"
+     create=yes
+     mode=0775

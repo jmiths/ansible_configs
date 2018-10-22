@@ -1,0 +1,55 @@
+---
+#- include: samba.yml
+- name: Install printing packages
+  apt:
+     name={{item}}
+     install_recommends=no 
+     state=present
+  with_items:
+     - cups
+     - cups-client
+     - cups-bsd # LPR without lp (uses cups)
+#No install recommends to get rid of avahi
+
+- name: Make sure cups is started
+  service:
+     name=cups
+     state=started
+
+- name: Find all printers
+  shell: lpstat -p | awk '{print $2}'
+  register: old_printers
+
+- name: Delete all printers
+  shell: lpadmin -x {{item}}
+  with_items: "{{old_printers.stdout_lines}}"
+
+- name: Tell apparmor to allow cupsd access to /var/run/nslcd/socket
+  file: 
+    dest=/etc/apparmor.d/disable/usr.sbin.cupsd
+    src=/etc/apparmor.d/usr.sbin.cupsd
+    state=link
+#  notify: Restart apparmor
+
+- name: Copy over the generic ppd
+  copy: 
+     src=generic.ppd
+     dest=/etc/cups/ppd/generic.ppd
+
+- name: Add printers that everyone can print to
+  shell: lpadmin -p {{item.name}} -E -v {{item.location}} -P /etc/cups/ppd/"{{item.ppd_file}}"
+  with_items: "{{free_printers}}"
+
+- name: Add Restricted UC printers that use a socket and LDAP groups
+  shell: lpadmin -p {{item.name}} -E -v {{item.location}} -P /etc/cups/ppd/"{{item.ppd_file}}" {{item.ldap_groups}}
+  with_items: "{{uc_printers}}"
+
+- name: Restart Cups
+  service:
+     name=cups
+     state=restarted
+
+#- name: Add printers that to go through Icommons print server
+#  shell: lpadmin -p {{item.name}} -E -o auth-info-required=username,password -o printer-op-policy='authenticated' -v {{item.location}} -P /etc/cups/ppd/{{item.ppd_file}}  {{item.ldap_groups}}
+#  with_items: samba_printers
+  

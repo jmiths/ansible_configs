@@ -1,0 +1,9 @@
+# {{ ansible_managed }}
+
+# You really don't want to try mirrors, as of 11/18/16 they break about once a week
+
+deb http://us.archive.ubuntu.com/ubuntu {{ ansible_distribution_release }} main multiverse restricted universe
+deb http://us.archive.ubuntu.com/ubuntu {{ ansible_distribution_release }}-updates main multiverse restricted universe
+deb http://us.archive.ubuntu.com/ubuntu {{ ansible_distribution_release }}-security main multiverse restricted universe
+
+deb http://archive.canonical.com/ubuntu {{ ansible_distribution_release }} partner

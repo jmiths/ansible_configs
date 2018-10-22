@@ -1,0 +1,39 @@
+---
+- name: Delete ecdsa keys just this once
+  file:
+      path=/etc/ssh/{{item}}
+      state=absent
+  with_items:
+      - ssh_host_ed25519_key
+      - ssh_host_ed25519_key.pub
+  when: ansible_distribution_release == 'precise'
+
+- name: Ensure host_keys are the same
+  synchronize:
+     src=host_keys/{{ansible_hostname}}/
+     dest=/etc/ssh/
+     owner=no
+     group=no
+     recursive=yes
+     rsync_opts=--exclude=*ed25519*
+     checksum=yes
+  notify: Restart SSH
+  register: Changed
+  when: ansible_distribution_release == 'precise'
+
+- name: Ensure host_keys are the same
+  synchronize:
+     src=host_keys/{{ansible_hostname}}/
+     dest=/etc/ssh/
+     owner=no
+     group=no
+     recursive=yes
+     checksum=yes
+  notify: Restart SSH
+  register: Changed2
+  when: ansible_distribution_release != 'precise'
+
+- name: Permission fix for private keys
+  shell: chmod 600 /etc/ssh/ssh_*key
+  when: Changed.changed or Changed2.changed
+

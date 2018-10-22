@@ -1,0 +1,6 @@
+# {{ ansible_managed }}
+{% for item in cereal %}
+{% for port in item.cereal_port %}
++af {{item.hostname}} {{port.location}} {{port.speed}} root root
+{% endfor %}
+{% endfor %}

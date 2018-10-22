@@ -1,0 +1,5 @@
+---
+- name: dump all vars
+  local_action: template dest=/tmp/dump src=dump.j2
+     
+

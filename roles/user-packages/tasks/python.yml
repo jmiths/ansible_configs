@@ -1,0 +1,68 @@
+---
+
+- name: Python 2 Pip package installs
+  pip: name={{ item }} state=present
+  with_items:
+  - joblib
+  - lockfile
+  - mako
+  - pam
+  - pandas
+  - ply
+  - pyOpenGL
+  - routes
+  - scipy
+  - sklearn
+  - statsmodels
+  - Theano
+  - numpy
+  - h5py
+  - nose
+  - sympy
+  - virtualenv
+  - coverage
+  - ggplot
+  - cairocffi
+  - ipython
+  - 'ipython[notebook]'
+  - pygal
+  - requests
+  - chainer
+
+- name: Python 3 Pip package installs
+  pip: 
+     name={{ item }} 
+     state=present
+     executable=pip3
+  with_items: # Don't ask about the order, pip seems to be picky
+  - joblib
+  - lockfile
+  - mako
+  - matplotlib
+  - numpy
+  - h5py
+  - oauth2
+  - pam
+  - ply
+  - pyOpenGL
+  - routes
+  - Theano
+  - virtualenv
+  - scipy
+  - sklearn
+  - nose
+  - sympy
+  - pandas
+  - coverage
+  - ggplot
+  - cairocffi
+  - ipython
+  - 'ipython[notebook]'
+  - pygal
+  - chainer
+
+- name: Install tensorflow for CPU machines
+  pip:
+      name="https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.10.0rc0-cp27-none-linux_x86_64.whl"
+      state=present
+  when: "'tux_client' in group_names"

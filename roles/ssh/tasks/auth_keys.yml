@@ -1,0 +1,30 @@
+---
+- name: Make authorized_keys.d and subdirectories that are needed
+  file:
+     dest=/root/.ssh/{{item}}
+     state=directory
+  with_items:
+     - authorized_keys.d
+
+- name: Allow root to use /etc/ssh keys # /etc/ssh is system-wide don't do it, you will hurt your users as well
+  template:
+     dest=/root/.ssh/config
+     src=root_ssh_config.j2
+     mode=600
+  when: ansible_hostname != "waltz"
+
+- include: wheel_keys.yml
+
+- name: If keys are defined, bring in extra host keys
+  include: keys.yml
+  when: keys != false
+
+- name: Make the authorized key file
+  assemble:
+     src=/root/.ssh/authorized_keys.d/
+     dest=/root/.ssh/authorized_keys
+
+- name: Clean up authorized keys dirs
+  file:
+     path=/root/.ssh/authorized_keys.d/
+     state=absent

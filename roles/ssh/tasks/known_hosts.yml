@@ -1,0 +1,40 @@
+---
+- name: Give Public known hosts to public machines
+  copy:
+     dest=/etc/ssh/ssh_known_hosts
+     src=known_hosts/known_hosts.pub
+     mode=644
+  register: result
+  when: 
+     - not ansible_all_ipv4_addresses | ipaddr('192.168.225.0/24')
+     - ansible_distribution_release != 'precise'
+     - "'vpn_client' not in group_names"
+
+- name: Move in private keys if necessary
+  copy:
+     dest=/etc/ssh/ssh_known_hosts
+     src=known_hosts/known_hosts.pri
+     mode=644
+  when: 
+     - result|skipped
+     - ansible_distribution_release != 'precise'
+
+- name: Give Public known hosts to precise public machines
+  copy:
+     dest=/etc/ssh/ssh_known_hosts
+     src=known_hosts/precise_known_hosts.pub
+     mode=644
+  register: result
+  when: 
+     - not ansible_all_ipv4_addresses | ipaddr('192.168.225.0/24')
+     - ansible_distribution_release == 'precise'
+     - "'vpn_client' not in group_names"
+
+- name: Move in precise private keys if necessary
+  copy:
+     dest=/etc/ssh/ssh_known_hosts
+     src=known_hosts/precise_known_hosts.pri
+     mode=644
+  when: 
+     - result|skipped
+     - ansible_distribution_release == 'precise'

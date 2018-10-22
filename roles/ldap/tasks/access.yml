@@ -1,0 +1,10 @@
+---
+- name: Restrict Access of Admin/Backend machines
+  template: dest=/etc/security/access.conf src=access.conf.j2 mode=644
+
+- name: Ensure restricted machines actually use /etc/security/access.conf
+  lineinfile: 
+       dest=/etc/pam.d/common-account
+       line="account required           pam_access.so"
+       state=present
+  when: ("ldap_restrict" in group_names) or ("public_workstation" in group_names)

@@ -1,0 +1,6 @@
+---
+- include: sssd.yml
+  when: "ansible_distribution_version | version_compare('14.04', '>')"
+
+- include: nslcd.yml
+  when: "ansible_distribution_version | version_compare('14.04', '<=')"

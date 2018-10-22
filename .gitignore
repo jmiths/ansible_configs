@@ -1,0 +1,4 @@
+zabbix_key_*
+*.swp
+*~
+*.retry

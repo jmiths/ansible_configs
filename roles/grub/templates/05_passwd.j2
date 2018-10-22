@@ -1,0 +1,8 @@
+#!/bin/sh
+# {{ ansible_managed }}
+set -e
+
+cat << EOF
+set superusers="root"
+password_pbkdf2 root {{ grub_password }}
+EOF

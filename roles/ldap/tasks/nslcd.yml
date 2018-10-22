@@ -1,0 +1,39 @@
+---
+- name: Install LDAP account packages
+  apt: pkg={{ item }} state=installed
+  with_items:
+  - libpam-cracklib
+  - libpam-ldapd
+
+- name: Install LDAP nsswitch.conf 
+  copy: 
+      src=nsswitch_1404.conf
+      dest=/etc/nsswitch.conf
+      owner=root
+      group=root
+      mode=644
+
+- name: Install nslcd package
+  apt: pkg={{ item }} state=installed
+  with_items:
+  - nslcd
+  - libnss-ldapd
+  tags:
+    - ldap_accounts
+
+- name: Install nslcd.conf
+  template: 
+    src=nslcd.conf.j2
+    dest=/etc/nslcd.conf
+    owner=root
+    group=nslcd
+    mode=0640
+  notify:
+    - restart nslcd
+  tags:
+  - ldap_accounts
+
+- name: Start nslcd Service & ensure it starts on boot
+  service: name=nslcd state=started enabled=true
+  tags:
+  - ldap_accounts

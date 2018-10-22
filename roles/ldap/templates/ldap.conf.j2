@@ -1,0 +1,36 @@
+# {{ ansible_managed }}
+#
+# This file should be accessible by all authenticated users
+# 
+
+uri ldaps://ldap.{{ansible_domain}}
+mdb ldaps://ldap1.{{ansible_domain}}
+
+# List of users to ignore ldap groups
+nss_initgroups_ignoreusers avahi,avahi-autoipd,backup,bin,daemon,dbus,dhcp,games,gdm,gnats,haldaemon,hplip,irc,klog,ldap,libuuid,list,lp,mail,man,messagebus,news,ntp,polkituser,proxy,pulse,puppet,root,sshd,statd,sync,sys,syslog,uucp,www-data
+
+#
+# must be set or sudo will ignore LDAP
+#sudoers_debug	2
+
+#
+# bindpw is a nss_ldap, pam_ldap option, not an openldap one
+bindpw proxyuser_pw
+scope one
+
+ssl on
+tls_checkpeer yes
+tls_cacertfile /etc/ldap/ssl/certs/{{subdomain.stdout}}_CA2.crt
+tls_cert /etc/ldap/ssl/ldap-proxy2.crt
+tls_key /etc/ldap/ssl/ldap-proxy2.key
+#debug 1
+#
+pam_filter objectclass=posixaccount
+pam_login_attribute uid
+pam_member_attribute gid
+pam_template_login_attribute uid
+
+pam_password crypt
+#pam_password_prohibit_message  Please visit http://internal to change your password.
+
+

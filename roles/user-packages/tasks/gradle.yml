@@ -1,0 +1,13 @@
+---
+
+- name: Add Gradle PPA
+  apt_repository:
+     repo='ppa:cwchien/gradle'
+     state=present
+     mode=644
+
+- name: Install gradle
+  apt:
+     update_cache=yes
+     name=gradle
+     state=present

@@ -1,0 +1,25 @@
+---
+- name: Are we doing a deploy?
+  fail: msg="This playbook is only for doing ceph monitor deploys, if you really really want to run it, set deploy=True in your playbook in order to make a new cluster"
+  when: deploy != True
+
+- name: Get monmap ready
+  template:
+     src=monmap.j2
+     dest=/tmp/monmap.sh
+     mode=700
+
+- name: Make ceph data dirs
+  file:
+     path=/var/lib/ceph/mon/ceph-{{ansible_hostname}}
+     state=directory
+
+- name: Run it
+  command: /tmp/monmap.sh
+  when: mons[0] == ansible_hostname
+
+- name: Start the monitor
+  command: start ceph-mon id={{ansible_hostname}}
+
+- name: Did I actaully change the vars? The answer is no
+  debug: msg={{mons}}

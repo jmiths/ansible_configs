@@ -1,0 +1,12 @@
+---
+- hosts: all
+  strategy: free
+  name: Common
+  roles:
+  - common-packages
+  - common-rootcfg
+  - common-system
+
+  handlers:
+  - include: handlers/handlers.yml
+

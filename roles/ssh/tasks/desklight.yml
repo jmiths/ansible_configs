@@ -1,0 +1,19 @@
+---
+- name: Delete alias file on desklight and remake it
+  file: dest=/root/.bash_aliases
+        state=absent
+
+- name: Makes aliases on desklight to aid key adding
+  lineinfile: 
+    dest=/root/.bash_aliases
+    line="alias {{item}}='eval $(ssh-agent); ssh-add ~/.ssh/user_keys/{{item}}.key'"
+    create=yes
+  with_items:
+    - "{{wheel_pass}}"
+
+- name: Copy User keys into desklight
+  synchronize:
+    dest=/root/.ssh/user_keys/
+    src=keys_passphrased/ 
+    owner=no
+    group=no

@@ -1,0 +1,42 @@
+---
+- name: Install sss nsswitch.conf
+  copy:
+      src=nsswitch.conf
+      dest=/etc/nsswitch.conf
+      owner=root
+      group=root
+      mode=644
+
+- name: Install sssd package
+  apt: pkg={{ item }} state=installed
+  with_items:
+    - sssd
+  tags:
+    - ldap_accounts
+
+- name: Install sssd.conf
+  template: 
+    src=sssd.conf.j2
+    dest=/etc/sssd/sssd.conf
+    owner=root
+    group=root
+    mode=0700
+  notify:
+    - restart sssd
+  tags:
+  - ldap_accounts
+
+- name: Remove apparmor profile
+  file: 
+    path=/etc/apparmor.d/usr.sbin.sssd
+    state=absent
+  notify: apparmor
+
+- name: Start SSSD Service & ensure it starts on boot
+  service: 
+    name=sssd 
+    state=started 
+   # state=enabled
+  tags:
+  - ldap_accounts
+

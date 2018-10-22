@@ -1,0 +1,38 @@
+---
+- name: Install Lightdm (This actually takes forever)
+  apt: name={{ item }} state=installed
+  with_items:
+     - lightdm
+     - ubuntu-session
+#  notify: lightdm
+
+- name: Copy in 50-ubuntu.conf for lightdm
+  copy: src=50-ubuntu.conf dest=/usr/share/lightdm/lightdm.conf.d/50-ubuntu.conf mode=644 owner=root group=root
+  when: "ansible_distribution_version | version_compare('14.04', '>=')"
+#  notify: lightdm
+
+- name: Change permissions on unix_chkpwd to allow login from lock screen
+  file: path=/sbin/unix_chkpwd mode="u+s"
+#  notify: lightdm | hangs on new installs, perhaps I will fix this a different time
+
+#- name: Allow log-out on lock screen
+#  copy:
+#     dest={{item.dest}}
+#     src={{item.src}}
+#     mode=644
+#  with_items:
+#     - { dest: '/etc/gconf/gconf.xml.mandatory/%gconf-tree.xml', src: 'gconf.xml' }
+#     - { dest: '/usr/share/glib-2.0/schemas/10_gnome-screensaver.gschema.override' , src: 'gnome_screensaver_override' }
+
+- name: Register if user logged in
+  shell: w | awk '{print $2}'
+  register: guiLogin
+  changed_when: False
+
+- name: Make default desktop a symlink
+  file: dest=/usr/share/xsessions/default.desktop src=/usr/share/xsessions/ubuntu.desktop state=link
+
+#- name: Make gnome terminal the default terminal (again)
+#  alternatives:
+#      name=x-terminal-emulator
+#      path=/usr/bin/gnome-terminal.wrapper

@@ -1,0 +1,27 @@
+---
+- name: Install cuda toolkit
+  apt:
+     name={{item}}
+     state=present
+  with_items:
+     - nvidia-cuda-toolkit
+#     - nvidia-361   You'll need at least 367 for the 1060's, it's not in repo
+
+#- name: Install jupyter notebook
+#  pip:
+#     name=jupyter
+#     state=latest
+
+#- name: Purge avahi # So many uneccessary packages the nvidia card pulls in
+#  apt:
+#     name=avahi-daemon
+#     state=absent
+
+#- name: Stop lightdm, its a dependency on the card...
+#  service:
+#     name=lightdm
+#     state=stopped
+
+- include: tensorflow.yml
+
+#- fail: msg="If this is your first time runing you need to restart in order for the nvidia drivers to be used. But First actually install the drive fromnvidia (have to use a run file)"

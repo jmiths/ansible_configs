@@ -1,0 +1,6 @@
+---
+- name: Update Cereal Sessions
+  shell: /usr/local/bin/cereal-sessions
+
+- name: Restart Cereal
+  service: name=cereal state=restarted enabled=yes

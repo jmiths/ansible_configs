@@ -1,0 +1,49 @@
+---
+#- name: Install netrc for racknews
+#  template: src=netrc.j2 dest=/root/.netrc owner=root group=root mode=0600
+
+- name: Install scripts
+  copy: src={{ item }} dest=/usr/local/bin/{{ item }} owner=root group=root mode=0755
+  with_items:
+  - cereal-sessions
+
+- name: Install cereal
+  apt:
+    pkg: "{{ item }}"
+    state: installed
+  with_items:
+    - cereal
+    - minicom
+
+- name: Install cereal screenrc and udev files
+  copy: 
+        src={{item.src}}
+        dest={{item.dest}}
+  with_items:
+      - { src: 'screenrc', dest: '/etc/cereal/screenrc' }
+      - { src: '60-custom-persistent-serial.rules', dest: '/etc/udev/rules.d/60-custom-persistent-serial.rules' }
+      - { src: '60-symlinks.rules', dest: '/etc/udev/rules.d/60-symlinks.rules' }
+  notify: Restart Cereal
+
+- name: Generate /etc/cereal/cereal.conf
+  template: 
+     src=cereal.conf.j2
+     dest=/etc/cereal/cereal.conf
+     mode=644
+     owner=root
+     group=root
+  notify: Update Cereal Sessions
+# Waiting for Gaylord to figure out how exactly to port VM's
+
+# Not sure what this does, ported, but commented for now
+#
+#- name: Copy in exe to clean screens
+#  copy:
+#     src=cereal-mollyguard
+#     dest=/usr/local/bin/cereal-mollyguard
+#     mode=755
+#     owner=root
+#     group=root
+
+#- name: Clean screen sessions
+#  shell: /usr/local/bin/cereal-mollyguard

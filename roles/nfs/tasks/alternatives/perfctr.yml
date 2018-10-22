@@ -1,0 +1,18 @@
+---
+- name: Ensure perfctr links
+  alternatives: 
+      link=/usr/local/bin/{{ item.name }} 
+      name={{ item.name }}
+      path={{ item.path }}
+  with_items:
+     - { name: 'papi', path: '/site/local/papi_x86_64' }
+     - { name: 'papi_avail', path: '/usr/local/bin/papi/bin/papi_avail' }
+     - { name: 'papi_clockres', path: '/usr/local/bin/papi/bin/papi_clockres' }
+     - { name: 'papi_command_line', path: '/usr/local/bin/papi/bin/papi_command_line' }
+     - { name: 'papi_cost', path: '/usr/local/bin/papi/bin/papi_cost' }
+     - { name: 'papi_decode', path: '/usr/local/bin/papi/bin/papi_decode' }
+     - { name: 'papi_event_chooser', path: '/usr/local/bin/papi/bin/papi_event_chooser' }
+     - { name: 'papi_mem_info', path: '/usr/local/bin/papi/bin/papi_mem_info' }
+     - { name: 'papi_native_avail', path: '/usr/local/bin/papi/bin/papi_native_avail' }
+     - { name: 'papi_version', path: '/usr/local/bin/papi/bin/papi_version' }
+     - { name: 'papi_xml_event_info', path: '/usr/local/bin/papi/bin/papi_xml_event_info' }

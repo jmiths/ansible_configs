@@ -1,0 +1,16 @@
+---
+- name: Get our subdomain
+  shell: echo {{ ansible_domain }} | cut -f 1 -d .
+  register: subdomain
+  changed_when: False
+
+- include: ldap-common.yml
+
+- include: ldap-accounts.yml
+  when: '"ldap_accounts" in group_names'
+
+- include: ldap-server.yml
+  when: '"ldap_server" in group_names'
+
+- include: access.yml
+  when: ("ldap_restrict" in group_names) or ("public_workstation" in group_names)

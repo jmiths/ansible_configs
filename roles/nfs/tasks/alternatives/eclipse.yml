@@ -1,0 +1,8 @@
+---
+- name: Ensure eclipse link
+  alternatives: 
+     link=/usr/local/bin/{{item.name}}
+     name={{ item.name }}
+     path={{ item.path }}{{item.name}}
+  with_items:
+     - { name: 'acl2s-eclipse', path: '/site/local/bin/' }

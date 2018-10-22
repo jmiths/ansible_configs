@@ -1,0 +1,10 @@
+---
+- name: Copy in Root's Bashrc and Screenrc
+  copy: dest={{ item.name }}
+    src={{ item.file }}
+    owner=root
+    group=root
+    mode=0755
+  with_items:
+    - { name: '/root/.bashrc', file: 'rootrc/bashrc' }
+    - { name: '/root/.screenrc', file: 'rootrc/screenrc' }

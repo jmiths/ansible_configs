@@ -1,0 +1,128 @@
+#!/bin/bash
+#
+# {{ ansible_managed }}
+#
+# rdiff-backup Auto Script Version 0405.01 (Local)
+# Currently configured for: {{ rdiff_backup_var_client }} >>> {{ rdiff_backup_var_server }}
+# Do not use if above configuration is not correct!
+#
+
+# Default settings for backup
+COMMAND="rdiff"
+MODE="normal"
+TYPE="create"
+
+# Define default logging location
+LOGDIR="/var/log/rdiff/$(date +%Y)/$(date +%m)/"
+LOG=$LOGDIR"$(date +%d).log"
+
+# Ensure that the logging location exists
+mkdir -p $LOGDIR
+
+# Help dialog
+how_to_use() {
+   cat <<EOF
+rdiff auto script version 0107.2
+Format: $COMMAND [-d] [-f] [-p] [-c] [-v]
+   -d   debug mode, show backup status in console
+   -f   fake run, will not execute backup (file logging disabled)
+   -p   prepare destination folder on server for backup (file logging disabled)
+   -c   remove backups older than {{ rdiff_backup_var_daylimit }} (experimental)
+   -v   verbose mode, output all commands
+EOF
+   exit 0
+}
+
+# Message output
+# It will NOT output to console when MODE="normal", which is the case when running as a cronjob (or no arguments given)
+output() {
+	case $MODE in
+	"normal" )  printf "$1" >> $LOG;;
+	* )  printf "$1" | tee -a $LOG;;
+	esac
+}
+
+# Parse command line arguments
+while getopts ":dcfpvh" opt; do
+   case $opt in
+   d )  MODE="debug";
+        printf "*** Debug mode, backup status will be shown in console\n + logging disabled";;
+   c )  MODE="remove-experimental";
+        TYPE="remove-experimental";
+        printf "*** Backup trim mode (remove old backups >{{ rdiff_backup_var_daylimit }})\n";;
+   f )  MODE="fake";
+        TYPE="test";
+        printf "*** Fake run, backup will not execute + logging disabled\n";;
+   p )  MODE="initialize";
+        TYPE="create-folder";
+        printf "*** Preparing folder for backup, backup will not execute + logging disabled\n";;
+   v )  printf "*** Verbose enabled, output bash commands\n";
+        set -x;;
+   h )  how_to_use;;
+   \?)  how_to_use;;
+   esac
+done
+
+if [ "$MODE" == "debug" ] || [ "$MODE" == "fake" ] || [ "$MODE" == "initialize" ]
+then
+	LOG="/dev/null"
+elif [ "$MODE" == "remove-experimental" ]
+then
+	LOG="$LOG.remove"
+fi
+
+touch $LOG
+START_DATE=$(date -u +"%s")
+output "[$(date)] Preparing for backup ($TYPE)...\n"
+
+# Terminate backup on error
+set -e
+
+# Declare backup folders
+BACKUP_FOLDERS={{ rdiff_backup_var_folders }}
+CLIENT="{{ ansible_hostname }}"
+SERVER="{{ rdiff_backup_var_server }}"
+DESTINATION="{{ rdiff_backup_var_destination }}"
+
+# Intialize destination folder only
+if [ "$MODE" == "initialize" ]
+then
+	mkdir -p $DESTINATION
+	output "[$(date)] Intialized destination folder, goodbye!\n"
+	exit 0;
+fi
+
+mkdir -p $DESTINATION
+
+# Execute backup operation
+output "[$(date)] Checking backup folder on SERVER: $SERVER\n"
+if [ -d $DESTINATION ]
+then
+	output "[$(date)] Found! Using backup folder: $DESTINATION\n"
+	output "[$(date)] Starting backup ($TYPE) from CLIENT: $CLIENT to SERVER: $SERVER\n"
+	trap "exit" INT
+	for TARGET in "${BACKUP_FOLDERS[@]}"
+	do
+		output "[$(date)] Starting backup ($TYPE) for: /$TARGET\n"
+		# Use --terminal-verbosity 8 for debug output
+		if [ "$MODE" == "fake" ]
+		then
+			output "rdiff-backup --backup-mode --create-full-path /$TARGET $DESTINATION/$TARGET\n"
+		elif [ "$MODE" == "debug" ]
+		then
+			rdiff-backup --backup-mode --terminal-verbosity 8 --create-full-path /$TARGET $DESTINATION/$TARGET 2>&1 | tee -a $LOG
+		elif [ "$MODE" == "remove-experimental" ]
+		then
+			rdiff-backup --remove-older-than {{ rdiff_backup_var_daylimit }} --force $DESTINATION/$TARGET 2>&1 | tee -a $LOG
+		else
+			rdiff-backup --backup-mode --create-full-path /$TARGET $DESTINATION/$TARGET 2>&1 | tee -a $LOG
+		fi
+		output "[$(date)] Finished backup ($TYPE) for: /$TARGET\n"
+	done
+	output "[$(date)] Backup ($TYPE) Completed\n"
+	END_DATE=$(date -u +"%s")
+	DIFFERENCE=$(($END_DATE-$START_DATE))
+	output "[$(date)] Backup ($TYPE) Took $(date -u -d @"$DIFFERENCE" +'%-Hh %-Mm %-Ss')\n"
+else
+	output "[$(date)] Backup ($TYPE) Failed: No backup folder configured on SERVER: $SERVER\n"
+fi

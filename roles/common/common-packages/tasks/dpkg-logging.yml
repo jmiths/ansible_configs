@@ -1,0 +1,12 @@
+---
+- name: Copy over dpkg log
+  copy: 
+     src={{ item.src }}
+     dest={{ item.dest }}
+     owner=root 
+     group=root 
+     mode={{ item.mode }}
+  with_items:
+     - { src: '10logging', dest: '/etc/apt/apt.conf.d/10logging', mode: 644 }
+     - { src: 'debian-dpkg-log.sh', dest: '/usr/local/sbin/debian-dpkg-log.sh', mode: 755 }
+

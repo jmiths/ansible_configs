@@ -1,0 +1,10 @@
+---
+- name: Ceph conf in place
+  template:
+     src=ceph.conf.j2
+     dest=/etc/ceph/ceph.conf
+
+- name: Put in admin keyring
+  template:
+     src=ceph.client.admin.keyring.j2
+     dest=/etc/ceph/ceph.client.admin.keyring

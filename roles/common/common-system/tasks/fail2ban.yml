@@ -1,0 +1,20 @@
+---
+- name: Fail2Ban - Install jail.local
+  copy: 
+     src=jail.local 
+     dest=/etc/fail2ban/jail.local 
+     mode=0644 
+     owner=root 
+     group=root
+  notify: restart fail2ban
+  when: "ansible_distribution_version | version_compare('14.04', '<=')"
+
+- name: Fail2Ban - Install jail.local for newer machines
+  template: 
+     src=jail.local.16.04
+     dest=/etc/fail2ban/jail.local
+     mode=0644 
+     owner=root 
+     group=root
+  notify: restart fail2ban
+  when: "ansible_distribution_version | version_compare('14.04', '>')"

@@ -1,0 +1,7 @@
+#!/bin/sh
+
+GSETTINGS_BACKEND=dconf gsettings set org.gnome.desktop.screensaver logout-enabled true
+GSETTINGS_BACKEND=dconf gsettings set org.gnome.desktop.screensaver logout-delay 0
+GSETTINGS_BACKEND=dconf gsettings set org.gnome.desktop.screensaver logout-command "xfce4-session-logout --logout"
+GSETTINGS_BACKEND=dconf gsettings set org.gnome.desktop.screensaver picture-uri "file:///usr/share/backgrounds/xfce/xfce-blue.jpg"
+GSETTINGS_BACKEND=dconf gsettings set org.gnome.desktop.background picture-uri "file:///usr/share/backgrounds/xfce/xfce-blue.jpg"

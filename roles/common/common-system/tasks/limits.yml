@@ -1,0 +1,6 @@
+---
+- name: Copy in limits conf
+  copy: dest={{ item.dest }} src={{ item.src }} mode=644
+  with_items:
+     - { dest: '/etc/security/limits.conf', src: 'limits/limits.conf' }
+     - { dest: '/etc/pam.d/su', src: 'limits/su' }

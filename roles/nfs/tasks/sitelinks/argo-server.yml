@@ -1,0 +1,5 @@
+---
+- name: Ensure argo site link
+  file: path={{ item.path }} state=link src={{ item.src }}
+  with_items:
+     - { path: '/site/local/argo', src: '/site/local/argouml-0.34' }

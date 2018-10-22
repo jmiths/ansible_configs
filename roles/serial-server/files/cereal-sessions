@@ -1,0 +1,63 @@
+#!/bin/bash
+
+#
+# Makes sure that running cereal sessions
+# match what is specified
+#
+
+DELIM='#'
+if [ -z "$USER" ]
+then
+    #
+    # cereal-admin list gets upset if $USER isn't defined
+    #
+    export USER=$(id -un)
+fi
+
+function destroy_serial {
+    cereal-admin stop ${2}
+    echo y | cereal-admin destroy ${2}
+}
+
+function create_serial {
+    cereal-admin create ${2} ${3} ${4} ${5} ${6}
+
+    # Wait for the session to actually be created
+    if [ $? -eq 0 ]
+    then
+        while ! [ -e "/var/lib/cereal/sessions/${2}/supervise/ok" ]
+        do
+            sleep .2
+        done
+
+        # Start the session
+        cereal-admin start ${2}
+    fi
+}
+
+function match_sessions {
+    running=$(mktemp /tmp/cereal-manage-XXXXX)
+
+    # Need a sorted list for comm
+    cereal list | sort > ${running}
+
+    # Go through the differences between input and
+    # running and decide whether to remove or add.
+    comm -3 --output-delimiter="${DELIM}" - "${running}" | while read line
+    do
+        if echo $line | grep -q -- "^${DELIM}"
+        then
+            echo "Removing" ${line##${DELIM}}
+            destroy_serial ${line##${DELIM}}
+        else
+            echo "Adding" $line
+            create_serial ${line}
+        fi
+
+    done
+
+    rm -rf ${running}
+}
+
+config=/etc/cereal/cereal.conf
+sort ${config} | grep -v '^ *#' | match_sessions

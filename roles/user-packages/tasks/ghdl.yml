@@ -1,0 +1,15 @@
+---
+- name: Install gtkwave
+  apt: name={{ item }}
+       state=installed
+  with_items:
+    - gtkwave
+
+- name: Link ghdl from source
+  alternatives:
+      link=/usr/local/bin/ghdl
+      name=ghdl
+      path=/site/local/ghdl/bin/ghdl
+  when:
+      - '"math_machines" not in group_names'
+      - ansible_hostname != 'twinkle'

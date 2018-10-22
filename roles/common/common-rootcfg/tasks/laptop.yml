@@ -1,0 +1,16 @@
+---
+
+- name: Install wifi package
+  apt:
+     name=wpasupplicant
+
+- name: Install wi-fi password/auth file
+  copy:
+     dest=/etc/wpa_supplicant.conf
+     src=etc-wpa_supplicant.conf
+
+- name: Template the network interface file
+  template:
+     dest=/etc/network/interfaces
+     src=interfaces.j2
+

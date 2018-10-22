@@ -1,0 +1,15 @@
+---
+
+- name: Give workstations wheel + cci-techstaff keys
+  copy: 
+     dest=/root/.ssh/authorized_keys.d/wheel_cci_keys
+     src=authorized_keys_ws
+     mode=600
+  when: '"public_workstation" in group_names'
+
+- name: Give the rest of the servers only wheel keys
+  copy:
+     dest=/root/.ssh/authorized_keys.d/wheel_keys
+     src=authorized_keys_all
+     mode=600
+  when: '"public_workstation" not in group_names'

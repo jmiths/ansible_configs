@@ -1,0 +1,11 @@
+---
+- name: Ensure ns-nam links
+  alternatives: 
+       link=/usr/local/bin/{{ item.name }} 
+       name={{ item.name }}
+       path={{ item.path }}
+  with_items:
+     - { name: 'ns', path: '/site/local/bin/ns' }
+     - { name: 'ns-2.34', path: '/site/local/bin/ns-2.34' }
+     - { name: 'nam', path: '/site/local/bin/nam' }
+     - { name: 'nam-1.14', path: '/site/local/bin/nam-1.14' }

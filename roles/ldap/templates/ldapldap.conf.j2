@@ -1,0 +1,19 @@
+# $OpenLDAP: pkg/ldap/libraries/libldap/ldap.conf,v 1.9 2000/09/04 19:57:01 kurt Exp $
+#
+# LDAP Defaults
+# {{ ansible_managed }}
+#
+
+# See ldap.conf(5) for details
+# This file should be world readable but not world writable.
+
+
+SIZELIMIT	50000
+TIMELIMIT	150
+
+# SSL/TSL configuration. With CA-signed certs, TLS_REQCERT should be
+#TLS_RANDFILE            /dev/random
+TLS_CACERT		/etc/ldap/ssl/certs/{{ subdomain.stdout }}_CA2.crt
+TLS_CERT		/etc/ldap/ssl/ldap-proxy2.crt
+TLS_KEY			/etc/ldap/ssl/ldap-proxy2.key
+TLS_REQCERT		demand

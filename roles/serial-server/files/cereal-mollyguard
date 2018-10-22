@@ -1,0 +1,43 @@
+#!/bin/bash
+
+#
+# Delete sessions not in the config file
+#
+
+conf=/etc/cereal/cereal.conf
+specced_config=$(mktemp /tmp/cereal-mg-XXXXX)
+running_config=$(mktemp /tmp/cereal-mg-XXXXX)
+
+sed 's/[ \t][ \t]*/ /g' $conf | grep -v '#' | grep -v '^$' > $specced_config
+cereal list > $running_config
+
+function del_extras {
+    cat $running_config | while read l
+    do
+        if ! grep -q -- "$l" $specced_config
+        then
+            a=($l)
+            cereal-admin stop ${a[1]}
+            echo y | cereal-admin destroy ${a[1]}
+        fi
+    done
+
+}
+
+function add_missing {
+    cat $specced_config | while read l
+    do
+        if ! grep -q -- "$l" $running_config
+        then
+            a=($l)
+            cereal-admin create ${a[1]} ${a[2]} ${a[3]} ${a[4]} ${a[5]}
+            sleep 1
+            cereal-admin start  ${a[1]}
+        fi
+    done
+}
+
+del_extras
+add_missing
+
+rm -rf $config

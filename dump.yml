@@ -1,0 +1,9 @@
+---
+- hosts: all
+  name: Common
+  roles:
+  - dump
+
+  handlers:
+  - include: handlers/handlers.yml
+

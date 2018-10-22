@@ -1,0 +1,19 @@
+# {{ ansible_managed }}
++:root:ALL
++:mcs-wheel:ALL
+{% if "public_workstation" in group_names %}
++:cci-techstaff:ALL
+# David Breen's Students get access to these machines so that they can run OpenCL in the background. This was the only place found to be able to run it.If they are causing a problem, do not hesitate to email them and ask them to cut back a bit.
++:david_users:ALL
+{% endif %}
+{% if access is defined %}
+{% for host in access %}
++:{{host}}:ALL
+{% endfor %}
+{% endif %}
+{% if ansible_hostname == "cicada" %}
++:accounts:ALL
+{% endif %}
++:ALL:LOCAL
+-:ALL:ALL
+

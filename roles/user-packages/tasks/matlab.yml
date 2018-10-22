@@ -1,0 +1,23 @@
+---
+
+- name: Ensure package dependancies
+  apt: name={{ item }} state=installed
+  with_items:
+  - libxt6
+  - libxpm4
+  - libxmu6
+
+- name: Fix libc.so.6 for Matlab
+  file: state=link src=/lib/x86_64-linux-gnu/libc.so.6 dest=/lib64/libc.so.6
+
+- name: Create versioned matlab links in /usr/local/bin
+  shell: "cd /site/local; ls -dr matlab-?[a-z0-9]* | grep -v toolbox"
+  register: MatlabVersions
+  changed_when: False
+
+- debug: var=MatlabVersions
+
+- file: state=link src=/site/local/{{ item }}/bin/matlab dest=/usr/local/bin/{{ item }}
+  with_items: "{{MatlabVersions.stdout_lines}}"
+
+- file: state=link src=/site/local/matlab-2017a/bin/matlab dest=/usr/local/bin/matlab

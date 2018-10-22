@@ -1,0 +1,13 @@
+---
+- name: Check if avahi is installed
+  shell: dpkg -l avahi-daemon | grep '^ii' | grep -q avahi-daemon
+  ignore_errors: True
+  register: avahi_installed
+  changed_when: False
+
+- name: Disable Services
+  service: name={{ item }} enabled=no state=stopped
+  when: avahi_installed.rc == 0
+  with_items:
+  - avahi-daemon
+

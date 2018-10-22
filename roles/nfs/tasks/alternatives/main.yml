@@ -1,0 +1,18 @@
+---
+- include: nachos.yml
+
+- include: ns-nam.yml
+
+- include: spin.yml
+
+- include: cilk.yml
+
+- include: argo.yml
+
+- include: perfctr.yml
+
+- include: mit-scheme.yml
+
+- include: eclipse.yml
+
+- include: go.yml

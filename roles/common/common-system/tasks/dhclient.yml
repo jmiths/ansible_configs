@@ -1,0 +1,12 @@
+---
+- name: Check for dhclient
+  command: test -f /etc/dhcp/dhclient.conf
+  register: dhclient
+  ignore_errors: yes
+  changed_when: False
+
+- name: Fix Domainname
+  lineinfile: dest=/etc/dhcp/dhclient.conf regexp="^.*supersede domain-name.*$" line='supersede domain-name "{{ ansible_domain }}";'
+  lineinfile: dest=/etc/dhcp/dhclient.conf insertafter="supersede domain-name" line='supersede domain-search "{{ ansible_domain }}";'
+  when: dhclient.rc == 0
+

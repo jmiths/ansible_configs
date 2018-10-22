@@ -1,0 +1,7 @@
+---
+- name: Have you updated bootstrap-osd key this run???
+  debug: msg="Update it if you haven't"
+
+- name: Fail if it is not defined
+  fail: msg="Key is not defined, type 'ceph auth list' on a monitor and paste it into a group_var for your cluster under bootstrap_osd_key"
+  when: bootstrap_osd_key is not defined

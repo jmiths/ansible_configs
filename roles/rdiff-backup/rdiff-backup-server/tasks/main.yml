@@ -1,0 +1,5 @@
+---
+- name: Install rdiff-backup
+  apt: 
+    name=rdiff-backup
+    state=installed

@@ -1,0 +1,41 @@
+---
+- include: host_keys.yml
+  when:
+     - '"public_workstation" not in group_names'
+     - '"rush_ws" not in group_names'
+
+- include: desklight.yml
+  when: ansible_hostname == "desklight"
+
+- include: auth_keys.yml
+
+- include: known_hosts.yml
+
+- name: Fix ssh_config
+  lineinfile:
+      dest=/etc/ssh/ssh_config
+      regexp='{{item.regexp}}'
+      line='{{item.line}}'
+      backrefs=yes
+      state=present
+  with_items:
+      - { regexp: '^(\s*)HashKnownHosts*', line: '\1HashKnownHosts no' }
+      - { regexp: '^(\s*)GSSAPIAuthentication*', line: '\1GSSAPIAuthentication no' }
+  notify: Restart SSH
+
+- name: Add AddressFamily inet to sshd_config
+  lineinfile: 
+    dest=/etc/ssh/sshd_config
+    line="AddressFamily inet"
+    state=present
+
+- name: Keep alive for machines
+  lineinfile:
+      dest=/etc/ssh/sshd_config
+      regexp='{{item.regexp}}'
+      line='{{item.line}}'
+      state=present
+  with_items:
+      - { regexp: "^TCPKeepAlive*", line: "TCPKeepAlive yes" }
+      - { regexp: "^ClientAliveInterval*", line: "ClientAliveInterval 30" }
+  notify: Restart SSH

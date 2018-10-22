@@ -1,0 +1,27 @@
+[sssd]
+domains = {{ subdomain.stdout }}.blah
+services = nss, pam
+config_file_version = 2
+
+[nss]
+filter_groups = root
+filter_users = root
+
+[pam]
+
+[domain/{{ subdomain.stdout }}.blah]
+id_provider = ldap
+ldap_uri = ldaps://ldap.{{ subdomain.stdout }}.blah
+ldap_search_base = dc={{ subdomain.stdout }},dc=blah,dc=com
+
+ldap_tls_cacert = /etc/ldap/ssl/certs/{{ subdomain.stdout }}_CA2.crt
+ldap_tls_key = /etc/ldap/ssl/ldap-proxy2.key
+ldap_tls_cert = /etc/ldap/ssl/ldap-proxy2.crt
+
+ldap_default_bind_dn = cn=proxyuser,dc={{ subdomain.stdout }},dc=blah,dc=com
+ldap_default_authok_type = password
+ldap_default_authtok = proxyuser_pw
+
+auth_provider = ldap
+cache_credentials = False
+enumerate = False

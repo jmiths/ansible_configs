@@ -1,0 +1,8 @@
+---
+- name: Ensure cilk link
+  alternatives:
+     link=/usr/local/bin/{{item.name}}
+     name={{ item.name }}
+     path={{ item.path }}
+  with_items:
+     - { name: 'cilkc', path: '/site/local/bin/cilkc' }

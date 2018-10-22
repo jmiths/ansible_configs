@@ -1,0 +1,11 @@
+---
+- name: Spin Links for Remote Usage
+  alternatives: 
+      link=/usr/local/bin/{{ item.name }} 
+      name={{ item.name }}
+      path={{ item.path }}
+  with_items:
+    - { name: 'spin', path: '/site/local/bin/spin' }
+    - { name: 'spin-6.2.7', path: '/site/local/bin/spin-6.2.7' }
+    - { name: 'jSpin.jar', path: '/site/local/bin/jSpin.jar' }
+    - { name: 'jSpin-5.0.jar', path: '/site/local/bin/jSpin-5.0.jar' }

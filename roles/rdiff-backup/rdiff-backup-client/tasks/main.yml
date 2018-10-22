@@ -1,0 +1,68 @@
+---
+- name: Fail if machine is not configured for backups, 1/5
+  fail: msg="Nope, this machine does not have an up-to-date backup configuration."
+  when: rdiff_backup_var_client is undefined
+
+- name: Fail if machine is not configured for backups, 2/5
+  fail: msg="Nope, this machine does not have an up-to-date backup configuration."
+  when: rdiff_backup_var_server is undefined
+
+- name: Fail if machine is not configured for backups, 3/5
+  fail: msg="Nope, this machine does not have an up-to-date backup configuration."
+  when: rdiff_backup_var_folders is undefined
+
+- name: Fail if machine is not configured for backups, 4/5
+  fail: msg="Nope, this machine does not have an up-to-date backup configuration."
+  when: rdiff_backup_var_destination is undefined
+
+- name: Fail if machine is not configured for backups, 5/5
+  fail: msg="Nope, this machine does not have an up-to-date backup configuration."
+  when: rdiff_backup_local is undefined
+
+- name: Install rdiff-backup
+  apt: 
+    name=rdiff-backup
+    state=installed
+
+- name: Copy backup script (for local)
+  template: 
+    src=rdiff_local.j2
+    dest=/root/rdiff
+    owner=root
+    group=root
+    mode=0700
+  when: rdiff_backup_local == true
+
+- name: Copy backup script (for remote)
+  template:
+    src=rdiff.j2
+    dest=/root/rdiff
+    owner=root
+    group=root
+    mode=0700
+  when: rdiff_backup_local == false
+
+- name: Create symlink in cron.daily
+  file: 
+    src=/root/rdiff
+    dest=/etc/cron.daily/rdiff
+    owner=root 
+    group=root 
+    state=link
+  when: rdiff_backup_var_cron == true
+
+- name: Create symlink in cron.daily
+  file: 
+    src=/root/rdiff
+    dest=/etc/cron.daily/rdiff
+    owner=root 
+    group=root 
+    state=link
+  when: rdiff_backup_var_auto == true
+
+
+- name: Autoremove backup task
+  cron: name="autoremove >30day old backups"
+        minute=0 hour=0
+        user="root"
+        job="/root/rdiff -c > /dev/null"

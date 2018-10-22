@@ -1,0 +1,61 @@
+---
+- name: Install default packages
+  apt:
+       name={{ item }}
+       state=installed
+       update_cache=yes
+  with_items: 
+  - aptitude
+  - apt-rdepends # Recursive package resolution
+  - apt-transport-https # Let ubuntu work with PPA's
+  - build-essential
+  - dnsutils
+  - fail2ban
+  - software-properties-common
+  - htop
+  - libffi-dev # For ansible
+  - libssl-dev
+  - lsof
+  - molly-guard
+  - mlocate
+  - nmap
+  - screen
+  - rsync
+  - tmpreaper
+  - tcpdump
+  - ntp
+  - python-pip
+  - python-pycurl
+  - python-dev
+
+- name: Install python3
+  apt: name={{item}} state=installed
+  with_items:
+    - python3-pip
+  when: "ansible_distribution_version | version_compare('14.04', '>=')"
+
+- name: Install Pip packages
+  pip:
+     name={{ item }} state=latest executable=pip
+  with_items:
+     - ansible
+     - netaddr  #http://docs.ansible.com/playbooks_filters_ipaddr.html
+#     - pip # This is not a joke, ansible wants the most recent version
+  when: "ansible_distribution_version | version_compare('14.04', '<')"
+
+#- name: Install Pip packages
+#  pip:
+#     name={{ item }} state=latest executable=pip3
+#  with_items:
+#     - ansible
+#     - netaddr  #http://docs.ansible.com/playbooks_filters_ipaddr.html
+#     - pip # This is not a joke, ansible wants the most recent version
+#  when: "ansible_distribution_version | version_compare('14.04', '>=')"
+
+- name: Upgrade all packages
+  apt:
+     update_cache=yes
+     upgrade=full
+
+- name: Purge Uneccessary Packages
+  command: apt-get -y autoremove

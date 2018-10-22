@@ -1,0 +1,25 @@
+---
+#
+# Deprecated Has not been run in quite some time, if KO asks:
+# This is what we ran
+#
+
+- name: Install pyopenexr
+  apt: name={{ item }} state=present
+  with_items:
+  - libopenexr-dev
+  - libopenexr6
+  - openexr
+  - openexr-viewers
+  - python-scipy
+  - python-pip
+
+- name: Make sure python bindings are there via pip for openexr
+  pip: name=openexr state=present
+
+#
+# Takes about 15-20mins to install - uggh
+#
+- name: Also upgrade scipy
+  pip: name=scipy version=0.14.0 state=present
+

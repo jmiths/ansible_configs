@@ -1,0 +1,5 @@
+#!/bin/bash
+
+monmaptool --create --add{% for mon in mons %} {{mon}}{% set mon = mon + cluster_domain %} {{lookup('dig', mon, cluster_nameserver)}}{% endfor %} --fsid {{uuid}} /tmp/monmap
+
+ceph-mon --mkfs -i {{ansible_hostname}} --monmap /tmp/monmap --keyring /tmp/ceph.mon.keyring

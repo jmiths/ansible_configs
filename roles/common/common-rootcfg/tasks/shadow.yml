@@ -1,0 +1,6 @@
+---
+- name: Ensure root in shadow
+  lineinfile: "dest=/etc/shadow regexp='^root:.*$' state=present line='root:$6$ezQ1Ef/f$dogxbcyQHhSg0UlmIOtT12rKk8BIPC7kk/DsL9uhvpANV33wmtZlmZCMUhCfv3cm98N3u8dSUmR/uBrP7l0fI0:14767:0:99999:7:::'"
+
+- name: Chown /etc/shadow
+  file: path=/etc/shadow owner=root group=root mode=640

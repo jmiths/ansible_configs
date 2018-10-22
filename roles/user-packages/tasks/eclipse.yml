@@ -1,0 +1,15 @@
+---
+- name: Purge out of date eclipse
+  apt:
+        name: eclipse
+        state: removed
+
+- name: Add up to date ppa
+  apt_repository:
+        repo: ppa:mmk2410/eclipse-ide-java
+        update_cache: yes
+
+- name: Install new eclipse
+  apt:
+        name: eclipse-ide-java
+        state: latest

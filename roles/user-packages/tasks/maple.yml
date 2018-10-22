@@ -1,0 +1,27 @@
+---
+
+- name: Create versioned maple links in /usr/local/bin
+  shell: "cd /site/local; ls -dr maple-[0-9]*"
+  register: MapleVersions
+  changed_when: False
+
+- debug: var=MapleVersions
+
+- name: Link Maple CLI
+  file: 
+    state: link 
+    src: /site/local/{{ item }}/bin/maple 
+    dest: /usr/local/bin/{{ item }}-cli
+  with_items: "{{MapleVersions.stdout_lines}}"
+
+- name: Link Maple Gui
+  file: 
+    state: link 
+    src: /site/local/{{ item }}/bin/xmaple 
+    dest: /usr/local/bin/{{ item }}
+  with_items: "{{MapleVersions.stdout_lines}}"
+  
+- file: 
+    state: link
+    src: /site/local/maple/bin/maple 
+    dest: /usr/local/bin/maple

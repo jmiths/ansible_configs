@@ -1,0 +1,12 @@
+---
+
+- name: Add blender repo
+  apt_repository: 
+    repo='ppa:thomas-schiex/blender'
+    state=present
+
+- name: Install blender
+  apt:
+    update_cache=yes
+    name=blender
+    state=latest

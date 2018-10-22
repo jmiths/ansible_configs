@@ -1,0 +1,73 @@
+---
+- name: Install Lightdm, greeter, screensaver, flash,  and gui related packages
+  apt:
+     name={{item}}
+     state=present
+  with_items:
+      - exfat-fuse
+      - flashplugin-installer
+      - gnome-screensaver
+      - gvfs-backends # Allows users to create virtual file systems such as smb from their file explorer
+      - lightdm
+      - lightdm-gtk-greeter
+      - redshift
+      - terminator
+      - vim-gnome
+      - xfce4
+      - xfce4-goodies
+      - xubuntu-artwork
+      - xubuntu-default-settings
+  notify: lightdm
+
+- name: Purge Bad Screensaver & Unity
+  apt:
+     name={{item}}
+     state=absent
+  with_items:
+     - unity-greeter
+     - xscreensaver
+     - unity
+  notify: lightdm
+
+- name: Get loggout button and login screen
+  copy:
+      dest={{item.dest}}
+      src={{item.src}}
+      mode=644
+      owner=root
+      group=root
+  with_items:
+      - { dest: "/etc/X11/Xsession.d/10-lockscreen", src: "10-lockscreen" }
+  notify: lightdm
+
+- name: Replace Wallpaper and theme
+  lineinfile:
+      dest=/etc/lightdm/lightdm-gtk-greeter.conf
+      state=present
+      regexp={{item.regexp}}
+      line={{item.line}}
+  with_items:
+       - { regexp: '^background\=*', line: 'background=/usr/share/xfce4/backdrops/xubuntu-wallpaper.png' }
+       - { regexp: 'theme-name\=*', line: 'theme-name=Greybird' }
+  notify: lightdm
+
+- name: Manual Login, Hide User List, Disable Guest
+  copy:
+      dest={{item.dest}}
+      src={{item.src}}
+      mode=644
+      owner=root
+      group=root
+  with_items:
+      - { dest: "/usr/share/lightdm/lightdm.conf.d/50-ubuntu.conf", src: "50-ubuntu.conf" }
+  notify: lightdm
+
+# BEGIN: Running Laptop Specific GUI Tasks
+
+# This assumes that XFCE is installed and will add the guest wallpaper
+# note: users will be able to see the guest wallpaper when configuring the desktop
+- name: Include laptop roles
+  include: laptop.yml
+  when: ansible_form_factor == "Laptop"
+
+# END: Running Laptop Specific GUI Tasks  

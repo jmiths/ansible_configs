@@ -1,0 +1,7 @@
+---
+- name: Ensure timezone
+  file: dest=/etc/localtime src=/usr/share/zoneinfo/America/New_York state=link force=yes
+
+- name: Set the timezone
+  file: dest="/etc/localtime" src="/usr/share/zoneinfo/America/New_York"
+

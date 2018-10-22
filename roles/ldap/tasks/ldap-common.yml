@@ -1,0 +1,37 @@
+---
+- name: Remove nscd - Oh Yeah
+  apt: 
+       name=nscd 
+       state=absent 
+       purge=yes
+
+- name: Install common LDAP packages
+  apt: 
+       name={{ item }} 
+       state=installed
+  with_items:
+     - ldap-utils
+
+- name: Install /etc/ldap.conf
+  template: 
+       src={{ item.src }}
+       dest={{ item.dest }}
+       owner=root
+       group=root
+       mode=644
+  with_items:
+     - { src: 'ldap.conf.j2', dest: '/etc/ldap.conf' }
+     - { src: 'ldapldap.conf.j2', dest: '/etc/ldap/ldap.conf' }
+  notify: 
+     - Restart slapd
+
+- name: Create LDAP ssl directories
+  synchronize: 
+       src=roles/ldap/files/ssl
+       dest=/etc/ldap
+
+- name: Create Root ldaprc symlink
+  file: 
+       state=link 
+       src=/etc/ldap/ldap.conf 
+       dest=/root/ldaprc

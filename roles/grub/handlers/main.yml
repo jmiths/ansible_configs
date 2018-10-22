@@ -1,0 +1,3 @@
+---
+- name: Update Grub
+  command: /usr/sbin/update-grub

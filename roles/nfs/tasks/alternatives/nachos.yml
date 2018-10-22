@@ -1,0 +1,16 @@
+---
+- name: Ensure mips is linked to nachos
+  alternatives: 
+     link=/usr/local/bin/mips-{{ item }} 
+     name=mips-{{ item }}
+     path=/site/local/bin/nachos
+  with_items:
+     - 'ar'
+     - 'as'
+     - 'cc1plus'
+     - 'cc2'
+     - 'gcc'
+     - 'ld'
+     - 'nm'
+     - 'ranlib'
+     - 'strip'

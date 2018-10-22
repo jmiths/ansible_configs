@@ -1,0 +1,10 @@
+---
+- name: restart nslcd
+  service: name=nslcd state=restarted
+
+- name: restart sssd
+  service: name=sssd state=restarted
+
+- name: apparmor
+  service: name=apparmor state=restarted
+  ignore_errors: yes

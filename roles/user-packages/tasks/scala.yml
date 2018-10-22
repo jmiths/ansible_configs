@@ -1,0 +1,27 @@
+---
+
+- name: Install deb package
+  apt:
+      deb="/site/local/deb_files/scala/scala-2.11.8.deb"
+  ignore_errors: true #If I can't get to site, its ok I'm not allowed
+
+- name: Add sbt repo
+  apt_repository: 
+      repo='deb https://dl.bintray.com/sbt/debian /'
+      state=present
+      mode=644
+
+- name: Add sbt repo key
+  apt_key:
+      keyserver=keyserver.ubuntu.com
+      id=642AC823
+
+- name: Update cache and install sbt/scala
+  apt:
+      name={{item}}
+      state=latest
+      update_cache=yes
+      allow_unauthenticated=yes
+  with_items:
+      - scala
+      - sbt

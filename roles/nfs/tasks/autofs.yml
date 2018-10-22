@@ -1,0 +1,45 @@
+---
+- name: Install autofs
+  apt: pkg={{ item }} state=installed
+  with_items:
+  - autofs-ldap
+  - nfs-common
+
+- name: Ensure autofs starts on boot
+  service: name=autofs enabled=true
+
+- name: Create autofs ldaprc symlink
+  file:
+    src=/etc/ldap/ldap.conf
+    dest=/ldaprc
+    state=link
+
+- name: Install auto.master
+  template: src=auto.master.j2
+    dest=/etc/auto.master
+    owner=root
+    group=root
+    mode=0644
+  notify:
+    - restart autofs
+  register: cfgchange
+
+- name: Install the export file
+  template:
+     src=auto.export.j2
+     dest=/etc/auto.export
+  notify:
+    - restart autofs
+
+- name: Ensure HOME variable is in /etc/default/autofs
+  lineinfile: dest=/etc/default/autofs line="export HOME=/root"
+  notify:
+    - restart autofs
+
+- name: Restart autofs right meow
+  service: name=autofs state=restarted
+  when: cfgchange|changed
+
+- name: ls of site in order to mount
+  shell: ls /site/local/bin
+  failed_when: False

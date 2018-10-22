@@ -1,0 +1,84 @@
+---
+- name: Nuke Hidden Timeout
+  lineinfile: dest=/etc/default/grub
+        regexp='^GRUB_HIDDEN'
+        state=absent
+  notify: Update Grub
+
+- name: Add grub serial console
+  lineinfile: dest=/etc/default/grub regexp='GRUB_CMDLINE_LINUX=' line='GRUB_CMDLINE_LINUX="console=tty0 console=ttyS0,38400"'
+  notify: Update Grub
+
+- name: Make sure we read/write to console and serial port
+  lineinfile: dest=/etc/default/grub regexp='GRUB_TERMINAL' line='GRUB_TERMINAL="serial console"'
+  notify: Update Grub
+
+- name: Add linux console serial
+  lineinfile: dest=/etc/default/grub line='GRUB_SERIAL_COMMAND="serial --unit=0 --speed=38400 --word=8 --parity=no --stop=1"'
+  notify: Update Grub
+
+- name: Clear Grub Password if physically secure
+  file: dest=/etc/grub.d/05_passwd
+        state=absent
+  notify: Update Grub
+  when: '"public_workstation" not in group_names'
+
+- name: Add Grub Password if not physically secure
+  template: src=05_passwd.j2
+        dest=/etc/grub.d/05_passwd
+        mode=755
+  when: '"public_workstation" in group_names'
+  notify: Update Grub
+
+- name: Allow linux to be booted normally without a password
+  shell: sed -i "/echo \"menuentry/s/\$boot_device_id' {\"/\$boot_device_id' --unrestricted {\"/" /etc/grub.d/10_linux
+  notify: Update Grub
+  
+#- name: Allow Windows to be booted without a password if in CCI or a laptop
+#  replace:
+#      dest=/etc/grub.d/30_os-prober
+#      regexp='(^menuentry.*--class windows.*osprober-.*\' )(\{.*$)'
+#      replace='\1--unrestricted \2'
+#  ignore_errors: yes
+#  notify: Update Grub
+
+#- name: Boot to windows if in CCI or a laptop #4
+#  lineinfile:
+#      dest=/etc/default/grub
+#      regexp=^GRUB_DEFAULT=
+#      line=GRUB_DEFAULT=4
+#  when: ansible_all_ipv4_addresses | ipaddr('129.25.202.0/23') or ansible_all_ipv4_addresses | ipaddr('144.118.0.0/16')
+#  notify: Update Grub
+
+- name: Install iPXE
+  copy: dest=/boot/{{ item }}
+    src={{ item }}
+    owner=root
+    group=root
+    mode=0755
+  with_items:
+    - ipxe.lkrn
+    - ipxe.cfg
+
+- name: Install iPXE grub menu
+  copy: dest=/etc/grub.d/20_ipxe
+    src=20_ipxe
+    owner=root
+    group=root
+    mode=0755
+
+- name: Install memtest86+
+  copy: dest=/boot/{{ item }}
+    src={{ item }}
+    owner=root
+    group=root
+    mode=0755
+  with_items:
+    - memtest86+.bin
+
+- name: Install memtest86+ grub menu
+  copy: dest=/etc/grub.d/20_memtest86+
+    src=20_memtest86+
+    owner=root
+    group=root
+    mode=0755

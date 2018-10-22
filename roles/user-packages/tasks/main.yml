@@ -1,0 +1,16 @@
+---
+- name: Include user-packages if needed
+  include: packages.yml
+  when: '"user_packages" in group_names'
+
+- name: Maple Install
+  include: maple.yml
+  when: ("nfs_client" in group_names) and (ansible_hostname != 'twinkle')
+
+- name: Matlab Install
+  include: matlab.yml
+  when: ("nfs_client" in group_names)  and (ansible_hostname != 'twinkle')
+
+- name: Blender install
+  include: blender.yml
+  when: '"gpu" in group_names'

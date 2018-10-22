@@ -1,0 +1,11 @@
+- name: Fix TMPTIME for reboot
+  lineinfile: dest=/etc/default/rcS
+    regexp='TMPTIME'
+    state=present
+    line='TMPTIME=7'
+
+- name: Configure tmpreaper
+  lineinfile: dest=/etc/tmpreaper.conf
+    regexp='SHOWWARNING'
+    state=present
+    line='SHOWWARNING=false'

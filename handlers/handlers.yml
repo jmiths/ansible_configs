@@ -1,0 +1,111 @@
+---
+- name: restart fail2ban
+  service: name=fail2ban state=restarted
+
+- name: puppet agent
+  service: name=puppet state=restarted enabled=yes
+
+- name: restart autofs
+  service: name=autofs state=restarted enabled=yes
+
+- name: restart nslcd
+  service: name=nslcd state=restarted enabled=yes
+
+- name: nagios-nrpe-server
+  service: name=nagios-nrpe-server service=restarted enabled=yes
+
+- name: ntp
+  service: name=ntp state=restarted enabled=yes
+
+- name: lightdm
+  service: name=lightdm state=restarted enabled=yes
+#  when: guiLogin.stdout.find(':0') == -1
+
+- name: Update Grub
+  shell: update-grub
+
+- name: Restart Postfix
+  service: name=postfix state=restarted enabled=yes
+
+- name: Restart Elasticsearch
+  service: name=elasticsearch state=restarted enabled=yes
+
+- name: Restart Logstash
+  service: name=logstash state=restarted enabled=yes
+
+- name: Restart Rsyslog
+  service: name=rsyslog state=restarted enabled=yes
+
+- name: Restart Nginx
+  service: name=nginx state=restarted enabled=yes
+
+- name: Update Apt Cache
+  command: apt-get update
+
+- name: Sysctl restart
+  command: sysctl -q -p
+
+- name: Restart libvirt
+  service: name=libvirt-bin state=restarted enabled=yes
+
+- name: Rebuild printer list
+  shell: /site/admin/bin/mk-cups-printer
+
+- name: Ensure cups is running
+  service: name=cups state=started enabled=yes
+
+# Populate /root/.ssh/authorized_keys
+# *** May be able to replace this script with ansible assemble
+#
+- name: Update Root Authorized_keys
+  assemble: src=/root/.ssh/authorized_keys.d
+    dest=/root/.ssh/authorized_keys
+    mode=644
+    owner=root
+    group=root
+
+- name: Restart SSH
+  service: name=ssh state=restarted enabled=yes
+
+#  command: /usr/local/bin/updateAuthorizedKeys root
+
+- name: Restart apache2
+  service: name=apache2
+    state=restarted
+    enabled=yes
+
+- name: Restart Rsyslog
+  service: name=rsyslog
+    state=restarted
+    enabled=yes
+
+- name: Restart iptables-persistent
+  service: name=iptables-persistent
+    state=restarted
+    enabled=yes
+
+- name: Restart vpn
+  service: name=openvpn
+    state=restarted
+    enabled=yes
+
+- name: Restart apparmor
+  service: name=apparmor
+    state=restarted
+    enabled=yes
+
+- name: Restart Motion
+  service: name=motion state=restarted enabled=yes
+
+- name: Restart Zabbix
+  service: name=zabbix-agent state=restarted enabled=yes
+
+- name: collectd
+  service: name=collectd state=restarted enabled=yes
+
+- name: Restart slapd
+  service: name=slapd state=restarted #must_exist=False
+  failed_when: False
+
+- name: Restart apparmor
+  service: name=apparmor state=reloaded

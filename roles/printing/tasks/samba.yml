@@ -1,0 +1,44 @@
+---
+- name: Install samba connection packages
+  apt:
+     update_cache=yes
+     name={{item}}
+     state=present
+  with_items:
+     - winbind
+     - samba-client
+
+- name: Remove workgroup = workgroup
+  ini_file:
+     dest=/etc/samba/smb.conf
+     section=global
+     option=workgroup
+     value=WORKGROUP
+     state=absent
+
+- name: Add items to bind us to Domain
+  ini_file:
+     dest=/etc/samba/smb.conf
+     section=global
+     option={{item.option}}
+     value={{item.value}}
+     state=present
+  with_items:
+     - { option: "security", value: "ads" }
+     - { option: "realm", value: "blah.edu" }
+     - { option: "workgroup", value: "blah" }
+     - { option: "client lanman auth", value: "yes" }
+
+- name: Join the domain
+  shell: net ads join -U user%pass
+  ignore_errors: true
+
+- name: Ensure services are started and enabled
+  service: 
+     name={{item}}
+     state=restarted
+     enabled=yes
+  with_items:
+     - smbd
+     - nmbd
+     - winbind

@@ -1,0 +1,20 @@
+- name: Make auth/host dirs
+  file:
+     dest=/root/.ssh/authorized_keys.d/{{item}}
+     state=directory
+  with_items:
+     - "{{keys}}"
+
+- name: Move keys into place
+  synchronize:
+     rsync_opts=--include=*.pub,--exclude=*key
+     src=host_keys/{{item}}/
+     dest=/root/.ssh/authorized_keys.d/{{item}}
+  with_items: "{{keys}}"
+
+- name: Assemble files from dirs
+  assemble:
+     src=/root/.ssh/authorized_keys.d/{{item}}
+     dest=/root/.ssh/authorized_keys.d/{{item}}.frag
+  with_items: "{{keys}}"
+

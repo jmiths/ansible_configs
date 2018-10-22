@@ -1,0 +1,19 @@
+---
+- name: Get ppa key
+  apt_key:
+    keyserver=keyserver.ubuntu.com
+    id=1640708104D2F866129B0E86A6804EA8EAE0D85C
+
+- name: Add calibre ppa
+  apt_repository:
+     repo='ppa:n-muench/calibre2'
+     state=present
+
+- name: Update cache
+  apt:
+    update_cache=yes
+
+- name: Install calibre
+  apt: 
+     name=calibre
+     state=present

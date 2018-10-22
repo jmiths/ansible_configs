@@ -1,0 +1,9 @@
+---
+- name: Ensure Ns-nam server links
+  file: dest={{ item.path }} state=link src={{ item.src }}
+  with_items:
+     - { dest: '/site/local/ns-allinone', src: '/site/local/ns-allinone-2.34' }
+     - { dest: '/site/local/bin/ns', src: '/site/local/bin/ns-2.34' }
+     - { dest: '/site/local/bin/nam', src: '/site/local/bin/nam-1.14' }
+     - { dest: '/site/local/bin/ns-2.34', src: '/site/local/ns-allinone-2.34/bin/ns' }
+     - { dest: '/site/local/bin/nam-1.14', src: '=/site/local/ns-allinone-2.34/bin/nam' }

@@ -1,0 +1,30 @@
+---
+
+# Also install tflearn
+
+- name: Install cudnn (v4)
+  copy:
+        src={{item.src}}
+        dest={{item.dest}}
+        mode={{item.mode}}
+  with_items:
+     - { src: "cudnn/include/cudnn.h", dest: "/usr/include/cudnn.h", mode: "0444" }
+     - { src: "cudnn/lib64/libcudnn.so.4.0.7", dest: "/usr/lib/libcudnn.so.4.0.7", mode: "0775" }
+     - { src: "cudnn/lib64/libcudnn_static.a", dest: "/usr/lib/libcudnn_static.a", mode: "0664" }
+
+- name: Link library files
+  file:
+        src={{item.src}}
+        path=/usr/lib/{{item.path}}
+        state=link
+  with_items:
+     - { src: "libcudnn.so.4.0.7", path: "libcudnn.so.4" }
+     - { src: "libcudnn.so.4", path: "libcudnn.so" }
+
+- name: Update libs
+  command: ldconfig
+
+- name: Install Tensorflow
+  pip:
+        name="https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow-0.10.0rc0-cp27-none-linux_x86_64.whl"
+        state=present

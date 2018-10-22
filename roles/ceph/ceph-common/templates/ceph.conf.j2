@@ -1,0 +1,27 @@
+[global]
+	fsid = {{uuid}}
+	mon initial members ={% for host in mons %} {{ host }}{% endfor %}
+	
+{% if mons|length == 1 %}
+	mon host = {{lookup('dig', mons[0] + cluster_domain , cluster_nameserver)}}
+{% endif %}
+	public network = {{cluster_network}}
+	auth cluster required = cephx
+	auth service required = cephx
+	auth client required = cephx
+	osd journal size = 10000 # Default Journal size 10 GB, fine for prod and dev
+	filestore xattr use omap = true
+	osd pool default size = {{num_replicas}}
+	osd pool default min size = 1
+	osd pool default pg num = {{pg_num}}
+	osd pool default pgp num = {{pg_num}}
+	osd crush chooseleaf type = 1
+
+{% if mons|length > 1 %}
+{% for host in mons %}
+[mon.{{host}}]
+	host = {{host}}
+{% set host = host + cluster_domain %}
+	mon addr = {{lookup('dig', host, cluster_nameserver)}}
+{% endfor %}
+{% endif %}

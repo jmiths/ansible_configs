@@ -1,0 +1,11 @@
+---
+- name: Add udev rule to make /dev/kvm 666
+  lineinfile:
+      dest=/lib/udev/rules.d/70-uaccess.rules
+      regexp='^SUBSYSTEM=="misc", KERNEL=="kvm",'
+      line='SUBSYSTEM=="misc", KERNEL=="kvm", MODE="0666"'
+
+- name: Chmod /dev/kvm
+  file:
+      dest=/dev/kvm
+      mode=666

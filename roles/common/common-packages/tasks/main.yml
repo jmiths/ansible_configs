@@ -1,0 +1,6 @@
+---
+- include: dpkg-logging.yml
+
+- include: sources-list.yml
+
+- include: base-packages.yml

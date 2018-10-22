@@ -1,0 +1,4 @@
+---
+- name: Ensure failsafe.conf exists (with comments)
+  copy: dest=/etc/init/failsafe.conf
+    src=failsafe.conf

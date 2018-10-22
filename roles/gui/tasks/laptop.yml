@@ -1,0 +1,68 @@
+---
+#- name: Autologin
+#  copy:
+#     src=lightdm.conf
+#     dest=/etc/lightdm.conf
+#     mode=755
+#  when: ansible_all_ipv4_addresses | ipaddr('144.118.0.0/16')
+
+# BEGIN: Running Laptop Specific GUI Tasks
+
+# This assumes that XFCE is installed and will add the guest wallpaper
+# note: users will be able to see the guest wallpaper when configuring the desktop
+- name: LAPTOP SPECIFIC- Add Guest Wallpaper
+  copy:
+      dest={{item.dest}}
+      src={{item.src}}
+      mode=644
+      owner=root
+      group=root
+  with_items:
+      - { dest: "/usr/share/backgrounds/xfce/guest-wallpaper.jpg", src: "guest-wallpaper.jpg" }
+  notify: lightdm
+
+# This creates the guest template folder, /etc/skel is used by default if this folder does not exist
+- name: LAPTOP SPECIFIC- Prepare Guest Home Template Folder
+  file:
+      path=/etc/guest-session/skel
+      state=directory
+
+# This pushes the config to the /etc/guest-session/skel directory
+- name: LAPTOP SPECIFIC- Push Guest Desktop Config
+  unarchive:
+      src=guest-home.zip
+      dest=/etc/guest-session/skel
+  sudo: yes
+
+# This replaces the LightDM guest-session-auto.sh file
+- name: LAPTOP SPECIFIC- Modify Guest Login Message
+  copy:
+      dest={{item.dest}}
+      src={{item.src}}
+      mode=755
+      owner=root
+      group=root
+  with_items:
+      - { dest: "/usr/lib/lightdm/guest-session-auto.sh", src: "guest-session-auto.sh" }
+  notify: lightdm
+
+# This assumes the GUI role has run already/LightDM is installed
+# note: if the 50-ubuntu.conf file in roles/gui/files is changed, this file will revert those changes
+# note 2: only change in 50-ubuntu.conf from the GUI role is allow-guest=true
+# note 3: only change in 60-lightdm-gtk-greeter.conf is the addition of autologin-guest=true and autologin-user-timeout=15
+- name: LAPTOP SPECIFIC- Enable Guest, Enable Guest Autologin (Manual Login, Hide User List)
+  copy:
+      dest={{item.dest}}
+      src={{item.src}}
+      mode=644
+      owner=root
+      group=root
+  with_items:
+      - { dest: "/usr/share/lightdm/lightdm.conf.d/50-ubuntu.conf", src: "50-ubuntu.conf.laptop" }
+      - { dest: "/usr/share/lightdm/lightdm.conf.d/60-lightdm-gtk-greeter.conf", src: "60-lightdm-gtk-greeter.conf" }
+  notify: lightdm
+  
+# END: Running Laptop Specific GUI Tasks  
+  
+#- name: Update dconf
+#  shell: dconf update

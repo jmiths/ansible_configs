@@ -1,0 +1,16 @@
+---
+- name: Move serial conf in place for all machines
+  copy: 
+     dest=/etc/init/ttyS0.conf
+     src=ttyS0.conf
+     owner=root
+     group=root
+     mode=755
+  when: ('"ceph_osd" not in group_names') or ('"public_workstation" not in group_names')
+
+- name: Make ttyS0 start on boot
+  service:
+     name=ttyS0
+     state=started
+     enabled=yes
+  when: ('"ceph_osd" not in group_names') or ('"public_workstation" not in group_names')

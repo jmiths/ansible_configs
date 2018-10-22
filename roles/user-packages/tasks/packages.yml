@@ -1,0 +1,67 @@
+---
+# YOU SERIOSULY DON'T WANT TO INSTALL GOOGLE CHROME, CHROMIUM IS FINE
+
+- name: Add Ubuntu and Launchpad key
+  apt_key:
+    keyserver=keyserver.ubuntu.com 
+    state=present
+    id=2EA8F35793D8809A
+
+- name: Copy over pkg lists
+  synchronize:
+    dest: /usr/local/etc/pkgs/
+    src: roles/user-packages/files/pkgs/
+
+- name: Collect page lists
+  shell: grep -hv "^#" /usr/local/etc/pkgs/*.list
+  register: packages
+  changed_when: False
+
+- name: Install all the packages
+  apt: name={{ item }}
+    state=installed
+    install_recommends=yes
+    update_cache=yes
+  with_items: "{{packages.stdout_lines}}"
+
+- name: Update all packages
+  apt: upgrade=full
+
+- name: Add GHDL for CS281
+  include: ghdl.yml
+  when: ansible_form_factor != "Laptop"
+
+- name: Python installs
+  include: python.yml
+
+- name: Java Install
+  include: java.yml
+  when: '"math_machines" not in group_names'
+
+- name: Scala Install
+  include: scala.yml
+
+- name: Gradle Install
+  include: gradle.yml
+
+- name: Bazel Install
+  include: bazel.yml
+  when: '"tux_client" in group_names'
+
+- name: Eclipse Install
+  include: eclipse.yml
+
+- name: Dropbox Install, there is some nasty GUI hooks, just leave it to CLI only machines
+  apt: 
+       name=nautilus-dropbox
+       state=present
+  when: '"tux_client" in group_names'
+
+- name: Opencl Install
+  include: opencl.yml
+  when: '"public_workstation" in group_names'
+  # Opencl was only found to work on the tinies
+
+- name: NPM install
+  include: web_frameworks.yml
+  when: (ansible_hostname == "twinkle") or (ansible_hostname == "waffle")

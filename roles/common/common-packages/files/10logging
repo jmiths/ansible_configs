@@ -1,0 +1,1 @@
+DPkg::Pre-Install-Pkgs {"/usr/local/sbin/debian-dpkg-log.sh";};

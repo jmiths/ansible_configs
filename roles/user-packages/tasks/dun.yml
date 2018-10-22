@@ -1,0 +1,7 @@
+---
+- name: Copy in Dun config files
+  copy: src={{ item.src }} dest={{ item.dest }} mode={{ item.mode }}
+  with_items:
+     - { src: 'dun/allow-group-access', dest: '/etc/sudoers.d/allow-group-access', mode: 440 }
+     - { src: 'dun/group-add-acls.conf', dest: '/etc/group-add-acls.conf', mode: 644 }
+     - { src: 'dun/sudo-allow-group-access', dest: '/usr/bin/sudo-allow-group-access', mode: 755 }

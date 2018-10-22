@@ -1,0 +1,21 @@
+---
+#- name: motd symlink
+#  file: path=/var/run/motd state=link src=/etc/motd
+#
+- name: Purge MOTD directory
+  shell: find /etc/update-motd.d/ -mindepth 1 | grep -v /motd | xargs -r rm
+  changed_when: False
+
+- name: Make sure help motd in place on forward facing machines
+  copy: dest=/etc/motd src=motd.tux
+  when: '"tux_client" in group_names'
+
+- name: Make sure help motd in place on twinkle
+  copy: dest=/etc/motd src=motd.twinkle
+  when: ansible_hostname == 'twinkle'
+
+- name: Make sure empty motd in place on backend machines
+  copy: dest=/etc/motd src=motd.empty
+  when: 
+    - '"tux_client" not in group_names'
+    - ansible_hostname != 'twinkle'

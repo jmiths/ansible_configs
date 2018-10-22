@@ -1,0 +1,9 @@
+{% if "breen" in group_names or "public_workstation" in group_names %}
+kuiper         	fs02:/export/kuiper
+{% endif %}
+{% if ansible_hostname == "rise" %}
+backups         snoopy:/export/backups/old_rise
+{% endif %}
+{% if "public_compute" in group_names %}
+spiros		fs03:/export/spiros
+{% endif %}

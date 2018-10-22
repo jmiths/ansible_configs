@@ -1,0 +1,39 @@
+---
+- name: Install required packages
+  apt:
+      name={{item}}
+      state=latest
+  with_items:
+      - opencl-headers
+      - clinfo
+
+- name: Install opencl deb packages
+  apt:
+      deb="/site/local/deb_files/opencl_intel/{{item}}"
+  with_items:
+      - "opencl-1.2-base_5.0.0.43-2_amd64.deb"
+      - "opencl-1.2-intel-cpu_5.0.0.43-2_amd64.deb"
+  ignore_errors: true #If I can't get to site, its ok I'm not allowed
+
+- name: Make sure linker file is in place
+  lineinfile:
+      dest=/etc/ld.so.conf.d/intelOpenCL.conf
+      line="/opt/intel/opencl-1.2-5.0.0.43/lib64"
+      state=present
+      create=yes
+  register: linkers
+
+- name: Setup directory
+  file:
+      dest="/etc/OpenCL/vendors"
+      state=directory
+
+- name: Ensure symlink in place to link
+  file:
+      src=/opt/intel/opencl-1.2-5.0.0.43/etc/intel64.icd
+      dest=/etc/OpenCL/vendors/intel64.icd
+      state=link
+
+- name: Update linkers
+  shell: ldconfig
+  when: linkers.changed

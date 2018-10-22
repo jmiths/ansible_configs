@@ -1,0 +1,11 @@
+# Uses /lib/udev/rules.d/60-persistent-serial.rules as a reference
+ACTION=="remove", GOTO="custom_persistent_serial_end"
+SUBSYSTEM!="tty", GOTO="custom_persistent_serial_end"
+KERNEL!="ttyUSB[0-9]*|ttyACM[0-9]*", GOTO="custom_persistent_serial_end"
+
+IMPORT{builtin}="usb_id"
+ENV{ID_SERIAL_SHORT}=="", GOTO="custom_persistent_serial_end"
+ENV{ID_USB_INTERFACE_NUM}=="", GOTO="custom_persistent_serial_end"
+SUBSYSTEM=="tty", SUBSYSTEMS=="usb", SYMLINK+="ttyUSB-$env{ID_SERIAL_SHORT}$env{ID_USB_INTERFACE_NUM}"
+
+LABEL="custom_persistent_serial_end"

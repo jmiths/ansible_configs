@@ -1,0 +1,16 @@
+---
+- include: shadow.yml
+
+- include: rootrc.yml
+
+- include: motd.yml
+
+- include: ansible-pull.yml
+
+- name: Fix form factor
+  set_fact:
+     ansible_form_factor="Laptop"
+  when: ansible_form_factor == "Portable" or ansible_form_factor == "Notebook"
+
+- include: laptop.yml
+  when: ansible_form_factor == "Laptop"
